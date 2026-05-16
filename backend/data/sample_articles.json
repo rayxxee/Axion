@@ -1,0 +1,23 @@
+[
+  {
+    "id": "demo-sbp-rate",
+    "title": "SBP raises interest rate by 200bps",
+    "content": "KARACHI: The State Bank of Pakistan (SBP) has announced an increase in the policy rate by 200 basis points, bringing the key interest rate to 19.5%. The Monetary Policy Committee (MPC) cited persistent inflationary pressures and external sector vulnerabilities as key factors behind the decision. The rate hike is expected to impact borrowing costs across all sectors, particularly affecting working capital requirements for small and medium enterprises. Banking sector analysts predict a significant increase in lending rates, with commercial banks likely to pass on the full impact to borrowers within the next 30 days. The construction and manufacturing sectors are expected to bear the brunt of the higher financing costs. Business leaders have expressed concerns about the impact on planned expansions and capital expenditure projects.",
+    "source": "Business Recorder",
+    "date": "2026-05-15"
+  },
+  {
+    "id": "demo-petrol-price",
+    "title": "Petrol price increased by 18%",
+    "content": "ISLAMABAD: The Oil and Gas Regulatory Authority (OGRA) has notified an increase in petrol prices by Rs 52.36 per liter, effective immediately. The new price of petrol is Rs 350.86 per liter, up from Rs 298.50. High-speed diesel has also been increased by Rs 48.20 per liter to Rs 338.20. The government attributed the increase to rising international oil prices and the impact of PKR depreciation on import costs. The All Pakistan Goods Transporters Association has announced plans to increase freight charges by 15-20% in response. Consumer goods manufacturers warned of cascading price increases across the supply chain. The Ministry of Finance stated that targeted subsidies for public transport would be considered to mitigate the impact on low-income commuters.",
+    "source": "Dawn News",
+    "date": "2026-05-14"
+  },
+  {
+    "id": "demo-pkr-depreciation",
+    "title": "PKR depreciates 3% against USD in interbank market",
+    "content": "KARACHI: The Pakistani rupee depreciated by 3% against the US dollar in the interbank market, closing at Rs 292.50 compared to Rs 283.98 in the previous session. Currency dealers attributed the decline to mounting demand for dollars from importers ahead of the fiscal year-end and reduced foreign exchange inflows. The State Bank of Pakistan's reserves stood at $8.2 billion, providing approximately 1.8 months of import cover. Textile exporters expressed mixed reactions, noting potential gains in export competitiveness but higher costs for imported raw materials. The pharmaceutical sector, heavily dependent on imported active pharmaceutical ingredients (APIs), warned of potential medicine shortages if the trend continues. The SBP intervened in the market with limited dollar sales to prevent disorderly conditions.",
+    "source": "The News International",
+    "date": "2026-05-13"
+  }
+]
