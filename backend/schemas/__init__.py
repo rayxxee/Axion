@@ -1,1 +1,0 @@
-"""Axion Pydantic schemas package."""

@@ -1,0 +1,15 @@
+{
+  "name": "axion-firebase-mcp",
+  "version": "1.0.0",
+  "description": "Firebase MCP server for Axion Antigravity agents",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "express": "^4.18.0",
+    "dotenv": "^16.0.0"
+  }
+}

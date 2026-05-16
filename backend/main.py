@@ -1,54 +1,88 @@
-"""Axion FastAPI application factory."""
-
-from __future__ import annotations
-
-import logging
-from contextlib import asynccontextmanager
-
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from services.firebase_client import (
+    write_pending_analysis,
+    seed_pricing_table,
+    get_pipeline_status,
+    get_final_report
+)
+from services.news_ingester import fetch_article_from_url
+import uuid
+from datetime import datetime
 
-from routers import analyze, agents
-from services.firestore_client import init_firestore
+app = FastAPI(title="Axion API", version="2.0.0")
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
+class AnalyzeRequest(BaseModel):
+    input_type: str   # "text" | "url" | "demo"
+    content: str      # raw text or URL
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Startup/shutdown lifecycle."""
-    init_firestore()
-    yield
+DEMO_INPUT = """SBP has raised the policy rate by 200 basis points to 22%,
+effective immediately. This is the third consecutive hike aimed at controlling
+inflation which stands at 28% YoY."""
 
+@app.get("/health")
+async def health():
+    return {"status": "ok", "version": "2.0.0", "architecture": "antigravity-orchestrated"}
 
-def create_app() -> FastAPI:
-    """Build and configure the FastAPI application."""
-    app = FastAPI(
-        title="Axion API",
-        description="News-to-Policy Impact Analyzer — 5-agent LLM pipeline",
-        version="0.1.0",
-        lifespan=lifespan,
-    )
+@app.post("/analyze")
+async def analyze(request: AnalyzeRequest):
+    """
+    Receives article from Flutter.
+    Writes it to Firestore pending_analysis.
+    Antigravity agents take over from here.
+    """
+    run_id = str(uuid.uuid4())
 
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_methods=["*"],
-        allow_headers=["*"],
-        allow_credentials=True,
-    )
+    if request.input_type == "demo":
+        article_text = DEMO_INPUT
+    elif request.input_type == "url":
+        article_text = await fetch_article_from_url(request.content)
+        if not article_text:
+            raise HTTPException(status_code=400, detail="Could not fetch article from URL")
+    else:
+        article_text = request.content
 
-    app.include_router(analyze.router)
-    app.include_router(agents.router)
+    if len(article_text.strip()) < 20:
+        raise HTTPException(status_code=400, detail="Article text too short")
 
-    @app.get("/health", tags=["system"])
-    async def health():
-        return {"status": "ok", "service": "axion"}
+    await write_pending_analysis({
+        "run_id": run_id,
+        "article_text": article_text,
+        "input_type": request.input_type,
+        "created_at": datetime.utcnow().isoformat(),
+        "status": "pending"
+    })
 
-    return app
+    return {
+        "run_id": run_id,
+        "status": "queued",
+        "message": "Article queued. Antigravity agents are processing."
+    }
 
+@app.get("/status/{run_id}")
+async def check_status(run_id: str):
+    """Flutter polls this until status is complete."""
+    status = await get_pipeline_status()
+    return status
 
-app = create_app()
+@app.get("/report")
+async def get_report():
+    """Flutter reads final report after pipeline_status is complete."""
+    report = await get_final_report()
+    if not report:
+        raise HTTPException(status_code=404, detail="No report available yet")
+    return report
+
+@app.post("/seed")
+async def seed():
+    """Seeds Firestore pricing_table with before-state data."""
+    await seed_pricing_table()
+    return {"status": "seeded", "message": "Pricing table restored to baseline"}

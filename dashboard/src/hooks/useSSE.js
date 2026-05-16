@@ -21,6 +21,7 @@ export function useSSE(jobId) {
     es.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        if (data.event === 'ping') return;
         setEvents((prev) => [...prev, data]);
 
         if (data.event === 'pipeline_done') {

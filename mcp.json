@@ -1,0 +1,17 @@
+{
+  "mcp_servers": [
+    {
+      "name": "firebase-mcp",
+      "type": "url",
+      "url": "http://localhost:3001/sse",
+      "description": "Firebase Firestore MCP server for Axion agent pipeline",
+      "tools": [
+        "firestore_read",
+        "firestore_write",
+        "firestore_batch_write",
+        "firestore_listen",
+        "firestore_delete"
+      ]
+    }
+  ]
+}
