@@ -1,4 +1,4 @@
-"""PolicyPulse FastAPI application factory."""
+"""Axion FastAPI application factory."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     """Build and configure the FastAPI application."""
     app = FastAPI(
-        title="PolicyPulse API",
+        title="Axion API",
         description="News-to-Policy Impact Analyzer — 5-agent LLM pipeline",
         version="0.1.0",
         lifespan=lifespan,
@@ -46,7 +46,7 @@ def create_app() -> FastAPI:
 
     @app.get("/health", tags=["system"])
     async def health():
-        return {"status": "ok", "service": "policypulse"}
+        return {"status": "ok", "service": "axion"}
 
     return app
 

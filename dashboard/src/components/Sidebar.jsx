@@ -17,7 +17,7 @@ export default function Sidebar() {
             <BarChart3 className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-[var(--color-text-primary)]">PolicyPulse</h1>
+            <h1 className="text-lg font-bold text-[var(--color-text-primary)]">Axion</h1>
             <p className="text-xs text-[var(--color-text-secondary)]">Impact Analyzer</p>
           </div>
         </div>

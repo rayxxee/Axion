@@ -1,1 +1,1 @@
-"""PolicyPulse Pydantic schemas package."""
+"""Axion Pydantic schemas package."""

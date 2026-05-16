@@ -1,9 +1,9 @@
 @echo off
-REM PolicyPulse Demo Runner
+REM Axion Demo Runner
 REM Starts backend + dashboard concurrently
 
 echo ===================================
-echo   PolicyPulse - Demo Runner
+echo   Axion - Demo Runner
 echo ===================================
 
 echo.

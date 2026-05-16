@@ -1,4 +1,4 @@
-"""Response schemas for PolicyPulse API."""
+"""Response schemas for Axion API."""
 
 from pydantic import BaseModel
 from typing import Optional

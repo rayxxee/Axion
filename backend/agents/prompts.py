@@ -1,4 +1,4 @@
-"""System prompts for all PolicyPulse agents.
+"""System prompts for all Axion agents.
 
 Each constant is a production-ready system prompt injected into the
 corresponding agent's LLM call. Domain: Pakistan market (PKR).

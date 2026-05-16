@@ -1,4 +1,4 @@
-"""Request schemas for PolicyPulse API."""
+"""Request schemas for Axion API."""
 
 from pydantic import BaseModel, Field
 from enum import Enum

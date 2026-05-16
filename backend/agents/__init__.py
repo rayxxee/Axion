@@ -1,1 +1,1 @@
-"""PolicyPulse agents package."""
+"""Axion agents package."""

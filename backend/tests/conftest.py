@@ -1,4 +1,4 @@
-"""Test fixtures for PolicyPulse backend."""
+"""Test fixtures for Axion backend."""
 
 import pytest
 from fastapi.testclient import TestClient

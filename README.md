@@ -1,4 +1,4 @@
-# PolicyPulse — News-to-Policy Impact Analyzer
+# Axion — News-to-Policy Impact Analyzer
 
 A 5-agent AI pipeline that ingests news articles, analyzes business impact for the Pakistani market, generates ranked actions, and simulates execution — all visible in a before/after dashboard.
 

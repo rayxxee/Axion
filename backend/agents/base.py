@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class BaseAgent(ABC):
-    """Base class for all PolicyPulse pipeline agents."""
+    """Base class for all Axion pipeline agents."""
 
     agent_name: str = "base"
     model: str = ""
