@@ -1,161 +1,113 @@
-# Axion — Antigravity-Orchestrated News Impact Pipeline
+# Axion — Autonomous Content-to-Action Agent (Google Antigravity Challenge 1)
 
-A 5-agent AI pipeline that ingests news articles, analyzes PKR business impact, generates ranked actions, and simulates execution with before/after state — **fully orchestrated by Google Antigravity**.
+**Axion** is a 5-agent AI pipeline that ingests unstructured news articles (text, URLs, PDFs), analyzes their direct financial impact on the Pakistani business market (specifically logistics and pricing), generates ranked strategic actions, and simulates execution with real-time before/after state visualizations — **fully orchestrated by Google Antigravity**.
 
-## Architecture
+## 🎥 Demo Video
+*(Link to 3-5 minute demo video goes here)*
 
+## 🏛 Architecture Overview
+
+```mermaid
+graph TD
+    A[Flutter App / React Dashboard] -->|POST /analyze| B(FastAPI Backend)
+    B -->|Writes new job| C[(Firebase Firestore)]
+    C -->|Trigger via MCP| D{Google Antigravity Orchestrator}
+    
+    subgraph Antigravity Manager View
+    D --> E[1. AnalystAgent]
+    E --> F[2. ImpactAgent]
+    F --> G[3. StrategyAgent]
+    G --> H[4. ExecutorAgent]
+    H --> I[5. ComposerAgent]
+    end
+    
+    I -->|Writes final report| C
+    A -->|Polls & displays| C
 ```
-Flutter/React → POST /analyze → Backend writes to Firestore
-                                     ↓
-                          Antigravity agents pick it up
-                                     ↓
-              AnalystAgent → ImpactAgent → StrategyAgent → ExecutorAgent → ComposerAgent
-                                     ↓
-                   Results written to Firestore → Flutter/React displays
-```
 
-| Component | Stack |
-|---|---|
-| **Orchestrator** | Google Antigravity (Manager View) |
-| **Agent Definitions** | `.agents/` markdown files |
-| **Backend** | FastAPI — thin trigger layer, zero LLM calls |
-| **Database** | Firebase Firestore (shared state bus) |
-| **MCP Bridge** | Express-based Firebase MCP server (port 3001) |
-| **Web Dashboard** | React + Tailwind CSS |
-| **Models** | Claude Sonnet 4.6 · Claude Haiku 4.5 · Gemini 3 Flash · Gemini 3.1 Flash-Lite |
+## 🛠 Tools & APIs Used
 
-## Agent Pipeline
+| Component | Technology | Purpose |
+|---|---|---|
+| **Orchestrator** | Google Antigravity | Manages agent reasoning, workflows, and tool execution (Manager View) |
+| **Agent Logic** | `.agents/*.md` | Declarative instructions and schemas for each agent |
+| **Backend API** | FastAPI (Python) | Thin trigger layer, PDF extraction (PyMuPDF), URL scraping |
+| **Database/State** | Firebase Firestore | Shared state bus for agents and frontends |
+| **MCP Server** | Node.js Express | `firebase-mcp` providing read/write/listen tools to Antigravity |
+| **Web App** | React + Tailwind | Web dashboard to view results |
+| **Mobile App (MUST)**| Flutter | Mobile app to submit documents and view impact reports |
+| **LLMs** | Claude 3.5 Sonnet, Haiku, Gemini 1.5 Flash | Diverse models assigned per task via pipeline config |
 
-| # | Agent | Model | Role |
-|---|---|---|---|
-| 1 | AnalystAgent | gemini-3.1-flash-lite | Extract economic signals from news |
-| 2 | ImpactAgent | gemini-3-flash | Calculate PKR business impact |
-| 3 | StrategyAgent | claude-sonnet-4-6 | Generate 3 ranked business actions |
-| 4 | ExecutorAgent | gemini-3-flash | Run 3 simulations (pricing, notifications, alerts) |
-| 5 | ComposerAgent | claude-haiku-4-5 | Assemble final report |
+## 🧠 How Antigravity is Used (Core Orchestration)
 
-## Prerequisites
+Antigravity is the absolute center of the Axion system. The backend makes **zero** LLM calls. 
 
-- Python 3.11+
-- Node.js 18+
-- Firebase project with Firestore enabled
-- Firebase service account JSON credentials
-- Anthropic API key (for Claude agents)
-- Gemini API key (for Gemini agents)
+1. **Triggering:** The backend simply writes a `pending_analysis` document to Firestore.
+2. **MCP Integration:** Antigravity connects to our custom `firebase-mcp` server, granting agents the ability to read and write to Firestore.
+3. **Manager View Workspaces:** We use Antigravity's Manager View to sequence the agents:
+   - **Workspace A:** `01_analyst_agent.md` (extracts facts) → triggers `02_impact_agent.md` (calculates PKR impact).
+   - **Workspace B:** `03_strategy_agent.md` (generates 3 ranked actions based on Workspace A).
+   - **Workspace C:** `04_executor_agent.md` (simulates pricing changes) → triggers `05_composer_agent.md` (assembles final JSON report).
 
-## Setup
+## 📊 Action Simulation (Critical Requirement)
 
-### 1. Environment
+Axion simulates execution for the Rank 1 recommended action using the `ExecutorAgent`:
+1. **Mock API/Database Update:** Updates the `pricing_table` collection in Firestore with newly calculated product prices.
+2. **Notification System:** Drafts targeted email and SMS notifications (including Urdu transliteration) for customers.
+3. **Workflow Trigger:** Generates a P1 stakeholder alert for the operations team.
+4. **Outcome Visualization:** The Flutter and React apps display the Before/After state of the pricing table alongside the execution logs.
 
+## 📋 Assumptions
+
+- **Business Profile:** The system evaluates impact based on a hardcoded profile (Mid-size logistics company in Lahore, 200 orders/day, 18% current margin).
+- **Data Freshness:** Agents rely on the provided news text. External verification is assumed to be handled by the user prior to submission.
+- **Antigravity State:** The Antigravity Manager View must be actively open and monitoring the Firebase MCP for the pipeline to progress automatically.
+
+## 🚀 Running the Project
+
+### 1. Environment Setup
 ```bash
 cp .env.example .env
-# Fill in ALL keys in .env:
-#   ANTHROPIC_API_KEY, GEMINI_API_KEY,
-#   FIREBASE_PROJECT_ID, FIREBASE_CREDENTIALS_PATH
+# Fill in ALL keys in .env
 ```
 
-### 2. Firebase MCP Server
-
+### 2. Firebase MCP Server (Must run first)
 ```bash
 cd firebase/mcp_server
 npm install
 node index.js
-# Must be running on port 3001 before opening Antigravity
+# Runs on port 3001
 ```
 
-### 3. Backend
-
+### 3. Backend API
 ```bash
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
+# Seed demo data: curl -X POST http://localhost:8000/seed
 ```
 
-### 4. Seed Firestore (first run)
-
-```bash
-# From backend/ directory:
-python -c "import asyncio; from services.firebase_client import seed_pricing_table; asyncio.run(seed_pricing_table())"
-# Or hit the endpoint:
-curl -X POST http://localhost:8000/seed
-```
-
-### 5. Dashboard
-
+### 4. Frontends
+**React Dashboard:**
 ```bash
 cd dashboard
 npm install
 npm run dev
 ```
 
-### 6. Antigravity (Agent Orchestration)
-
-1. Open Axion project in Antigravity
-2. Confirm `mcp.json` is detected (MCP panel → firebase-mcp connected)
-3. Open **Manager View** → create 3 workspaces:
-   - **Workspace A**: `01_analyst_agent.md` + `02_impact_agent.md`
-   - **Workspace B**: `03_strategy_agent.md`
-   - **Workspace C**: `04_executor_agent.md` + `05_composer_agent.md`
-4. Set each workspace's model per `pipeline_config.md`
-
-## API Endpoints
-
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/health` | Health check (returns version + architecture) |
-| POST | `/analyze` | Submit article → Firestore → Antigravity takes over |
-| GET | `/status/{run_id}` | Poll pipeline status until complete |
-| GET | `/report` | Fetch final assembled report |
-| POST | `/seed` | Reset Firestore pricing table to baseline |
-
-## Demo Inputs
-
-- `"SBP raises interest rate by 200bps"`
-- `"Petrol price increased by 18%"`
-- `"PKR depreciates 3% against USD"`
-
-## Testing Without Antigravity
-
-The backend can be tested standalone — it writes to Firestore and exposes polling endpoints. Agents must be triggered manually via Antigravity Manager View or by writing mock data directly to Firestore `agent_outputs` collection.
-
+**Flutter Mobile App:**
 ```bash
-# Health check
-curl http://localhost:8000/health
-
-# Seed pricing table
-curl -X POST http://localhost:8000/seed
-
-# Submit demo article
-curl -X POST http://localhost:8000/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"input_type": "demo", "content": ""}'
-
-# Check status
-curl http://localhost:8000/status/<run_id>
+cd flutter_app
+flutter pub get
+flutter run
 ```
 
-## Firestore Collections
-
-| Collection | Purpose |
-|---|---|
-| `pending_analysis` | Input articles from Flutter/React |
-| `agent_outputs` | agent1_result through agent4_result |
-| `pricing_table` | Product pricing (mutated by ExecutorAgent) |
-| `simulation_state` | Before/after snapshots |
-| `notification_drafts` | Email + SMS output |
-| `workflow_alerts` | Stakeholder alert output |
-| `execution_log` | Timestamped log entries from all agents |
-| `final_report` | Assembled output (read by clients) |
-| `pipeline_status` | Completion signal polled by clients |
-
-## Export Agent Trace
-
-```bash
-python scripts/export_agent_trace.py
-# Exports execution_log from Firestore → agent_trace.json
-```
+### 5. Start Antigravity Pipeline
+1. Open Antigravity.
+2. Verify `firebase-mcp` is connected.
+3. Open Manager View.
+4. Setup the 3 workspaces as defined in `.agents/pipeline_config.md`.
+5. Submit an article via Flutter or React to watch the agents execute!
 
 ---
-
-*Axion v2.0 — Antigravity-Orchestrated Architecture*
-*Stack: Google Antigravity · Claude Sonnet 4.6 · Claude Haiku 4.5 · Gemini 3 Flash · Gemini 3.1 Flash-Lite · Firebase Firestore MCP · React*
+*Built for Google Antigravity Hackathon 2026*

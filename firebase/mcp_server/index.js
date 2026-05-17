@@ -1,13 +1,21 @@
-require('dotenv').config({ path: '../../.env' });
+const path = require('path');
+const ROOT_DIR = path.resolve(__dirname, '../../');
+require('dotenv').config({ path: path.join(ROOT_DIR, '.env') });
 const admin = require('firebase-admin');
 const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
 const { SSEServerTransport } = require('@modelcontextprotocol/sdk/server/sse.js');
 const express = require('express');
 
 // Init Firebase
-const serviceAccount = require(process.env.FIREBASE_CREDENTIALS_PATH || '../../firebase-credentials.json');
+let credPath = process.env.FIREBASE_CREDENTIALS_PATH || 'firebase-credentials.json';
+if (!path.isAbsolute(credPath)) {
+  credPath = path.join(ROOT_DIR, credPath);
+}
+const serviceAccount = require(credPath);
 admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 const db = admin.firestore();
+
+const { ListToolsRequestSchema, CallToolRequestSchema } = require('@modelcontextprotocol/sdk/types.js');
 
 const server = new Server(
   { name: 'firebase-mcp', version: '1.0.0' },
@@ -15,7 +23,7 @@ const server = new Server(
 );
 
 // Tool: firestore_read
-server.setRequestHandler('tools/call', async (request) => {
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   if (name === 'firestore_read') {
@@ -61,7 +69,7 @@ server.setRequestHandler('tools/call', async (request) => {
 });
 
 // List available tools
-server.setRequestHandler('tools/list', async () => ({
+server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
     { name: 'firestore_read', description: 'Read a Firestore document', inputSchema: { type: 'object', properties: { collection: { type: 'string' }, document: { type: 'string' } }, required: ['collection', 'document'] } },
     { name: 'firestore_write', description: 'Write to a Firestore document', inputSchema: { type: 'object', properties: { collection: { type: 'string' }, document: { type: 'string' }, data: { type: 'object' } }, required: ['collection', 'document', 'data'] } },

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { History, ArrowRight } from 'lucide-react';
-import { getHistory } from '../api/client';
+import { getAnalysisHistory } from '../services/api';
 
 const severityColors = {
   low: 'bg-green-500/20 text-green-400',
@@ -13,11 +13,23 @@ const severityColors = {
 
 export default function HistoryPage() {
   const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    getHistory().then(({ data }) => setJobs(data)).catch(console.error);
+    getAnalysisHistory()
+      .then((data) => setJobs(Array.isArray(data) ? data : []))
+      .catch(() => setJobs([]))
+      .finally(() => setLoading(false));
   }, []);
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto text-center py-16">
+        <div className="w-8 h-8 border-2 border-[var(--color-accent)]/30 border-t-[var(--color-accent)] rounded-full animate-spin mx-auto" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -35,14 +47,14 @@ export default function HistoryPage() {
       ) : (
         <div className="space-y-3">
           {jobs.map((job, i) => (
-            <motion.div key={job.job_id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              onClick={() => navigate(`/results/${job.job_id}`)}
+            <motion.div key={job.run_id || job.job_id || i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              onClick={() => navigate(`/results/${job.run_id || job.job_id}`)}
               className="p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-accent)] cursor-pointer transition-all flex items-center justify-between group">
               <div>
-                <p className="font-medium">{job.headline || 'Untitled analysis'}</p>
+                <p className="font-medium">{job.headline || job.article_text?.slice(0, 60) || 'Untitled analysis'}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className={`px-2 py-0.5 text-[10px] rounded-full ${job.status === 'completed' ? 'bg-[var(--color-success)]/20 text-[var(--color-success)]' : 'bg-[var(--color-warning)]/20 text-[var(--color-warning)]'}`}>{job.status}</span>
-                  <span className="text-xs text-[var(--color-text-secondary)]">{job.event_count} events</span>
+                  <span className={`px-2 py-0.5 text-[10px] rounded-full ${job.status === 'complete' ? 'bg-[var(--color-success)]/20 text-[var(--color-success)]' : 'bg-[var(--color-warning)]/20 text-[var(--color-warning)]'}`}>{job.status}</span>
+                  <span className="text-xs text-[var(--color-text-secondary)]">{job.created_at || ''}</span>
                 </div>
               </div>
               <ArrowRight className="w-5 h-5 text-[var(--color-text-secondary)] group-hover:text-[var(--color-accent)] transition-colors" />

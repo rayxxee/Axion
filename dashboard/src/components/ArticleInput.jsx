@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Link, FileUp, Zap, Sparkles } from 'lucide-react';
+import { FileText, Link, FileUp, Zap, Sparkles, CheckCircle } from 'lucide-react';
 
 const tabs = [
   { id: 'text', label: 'Text', icon: FileText },
@@ -11,17 +11,37 @@ const tabs = [
 const demoArticles = [
   { label: 'SBP +200bps', text: 'KARACHI: The State Bank of Pakistan (SBP) has announced an increase in the policy rate by 200 basis points, bringing the key interest rate to 19.5%. The Monetary Policy Committee (MPC) cited persistent inflationary pressures and external sector vulnerabilities as key factors behind the decision. The rate hike is expected to impact borrowing costs across all sectors, particularly affecting working capital requirements for small and medium enterprises.' },
   { label: 'Petrol +18%', text: 'ISLAMABAD: The Oil and Gas Regulatory Authority (OGRA) has notified an increase in petrol prices by Rs 52.36 per liter, effective immediately. The new price of petrol is Rs 350.86 per liter, up from Rs 298.50. High-speed diesel has also been increased by Rs 48.20 per liter. The government attributed the increase to rising international oil prices.' },
+  { label: 'PKR -3%', text: 'KARACHI: The Pakistani Rupee depreciated by 3% against the US Dollar in interbank trading today, closing at Rs 289.50 from Rs 281.07. Analysts cite foreign debt payments and declining reserves as primary factors behind the continued slide.' },
 ];
 
-export default function ArticleInput({ onSubmit, isLoading }) {
+export default function ArticleInput({ onSubmit, onPdfSubmit, isLoading }) {
   const [activeTab, setActiveTab] = useState('text');
   const [content, setContent] = useState('');
+  const [pdfFile, setPdfFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (activeTab === 'pdf' && pdfFile) {
+      if (onPdfSubmit) {
+        onPdfSubmit(pdfFile);
+      }
+      return;
+    }
+
     if (content.trim().length < 10) return;
     onSubmit(activeTab, content);
   };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      setPdfFile(file);
+    }
+  };
+
+  const canSubmit = activeTab === 'pdf' ? !!pdfFile : content.trim().length >= 10;
 
   return (
     <motion.div
@@ -39,7 +59,7 @@ export default function ArticleInput({ onSubmit, isLoading }) {
         {tabs.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
-            onClick={() => { setActiveTab(id); setContent(''); }}
+            onClick={() => { setActiveTab(id); setContent(''); setPdfFile(null); }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               activeTab === id
                 ? 'bg-[var(--color-accent)] text-white'
@@ -80,9 +100,34 @@ export default function ArticleInput({ onSubmit, isLoading }) {
         )}
 
         {activeTab === 'pdf' && (
-          <div className="border-2 border-dashed border-[var(--color-border)] rounded-xl p-8 text-center">
-            <FileUp className="w-10 h-10 text-[var(--color-text-secondary)] mx-auto mb-3" />
-            <p className="text-[var(--color-text-secondary)] text-sm">PDF upload coming soon</p>
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
+              pdfFile
+                ? 'border-[var(--color-success)] bg-[var(--color-success)]/5'
+                : 'border-[var(--color-border)] hover:border-[var(--color-accent)] hover:bg-[var(--color-accent)]/5'
+            }`}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            {pdfFile ? (
+              <>
+                <CheckCircle className="w-10 h-10 text-[var(--color-success)] mx-auto mb-3" />
+                <p className="text-[var(--color-text-primary)] font-medium">{pdfFile.name}</p>
+                <p className="text-xs text-[var(--color-text-secondary)] mt-1">{(pdfFile.size / 1024).toFixed(1)} KB — Click to change</p>
+              </>
+            ) : (
+              <>
+                <FileUp className="w-10 h-10 text-[var(--color-text-secondary)] mx-auto mb-3" />
+                <p className="text-[var(--color-text-primary)] font-medium">Click to upload PDF</p>
+                <p className="text-xs text-[var(--color-text-secondary)] mt-1">Reports, articles, policy documents</p>
+              </>
+            )}
           </div>
         )}
 
@@ -106,7 +151,7 @@ export default function ArticleInput({ onSubmit, isLoading }) {
         {/* Submit */}
         <motion.button
           type="submit"
-          disabled={isLoading || content.trim().length < 10}
+          disabled={isLoading || !canSubmit}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="mt-4 w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-[var(--color-accent)] to-purple-500 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-[var(--color-accent-glow)]"

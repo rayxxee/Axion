@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ArticleInput from '../components/ArticleInput';
-import { startAnalysis } from '../api/client';
+import { analyzeArticle, analyzeArticlePdf } from '../services/api';
 
 export default function AnalyzePage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -10,10 +10,21 @@ export default function AnalyzePage() {
   const handleSubmit = async (inputType, content) => {
     setIsLoading(true);
     try {
-      const { data } = await startAnalysis(inputType, content);
-      navigate(`/results/${data.job_id}`);
+      const data = await analyzeArticle(inputType, content);
+      navigate(`/results/${data.run_id}`);
     } catch (err) {
       console.error('Analysis failed:', err);
+      setIsLoading(false);
+    }
+  };
+
+  const handlePdfSubmit = async (file) => {
+    setIsLoading(true);
+    try {
+      const data = await analyzeArticlePdf(file);
+      navigate(`/results/${data.run_id}`);
+    } catch (err) {
+      console.error('PDF analysis failed:', err);
       setIsLoading(false);
     }
   };
@@ -26,7 +37,7 @@ export default function AnalyzePage() {
           Paste a news article, URL, or upload a PDF to analyze its business impact on the Pakistani market.
         </p>
       </div>
-      <ArticleInput onSubmit={handleSubmit} isLoading={isLoading} />
+      <ArticleInput onSubmit={handleSubmit} onPdfSubmit={handlePdfSubmit} isLoading={isLoading} />
     </div>
   );
 }

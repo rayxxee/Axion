@@ -2,14 +2,20 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 import asyncio
 from datetime import datetime
 
-load_dotenv()
+# Load .env from project root
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+load_dotenv(ROOT_DIR / ".env")
 
 if not firebase_admin._apps:
-    cred = credentials.Certificate(os.getenv("FIREBASE_CREDENTIALS_PATH"))
+    cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "firebase-credentials.json")
+    if not os.path.isabs(cred_path):
+        cred_path = ROOT_DIR / cred_path
+    cred = credentials.Certificate(cred_path)
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
@@ -105,3 +111,22 @@ async def seed_pricing_table():
             db.collection("agent_outputs").document(doc_id).set({"status": "pending"})
         db.collection("pipeline_status").document("current").set({"status": "idle"})
     await loop.run_in_executor(None, _seed)
+
+async def get_analysis_history():
+    loop = asyncio.get_event_loop()
+    def _fetch():
+        docs = (
+            db.collection("pending_analysis")
+            .order_by("created_at", direction=firestore.Query.DESCENDING)
+            .limit(20)
+            .stream()
+        )
+        return [doc.to_dict() for doc in docs]
+    return await loop.run_in_executor(None, _fetch)
+
+async def get_execution_log():
+    loop = asyncio.get_event_loop()
+    def _fetch():
+        docs = db.collection("execution_log").order_by("timestamp").stream()
+        return [doc.to_dict() for doc in docs]
+    return await loop.run_in_executor(None, _fetch)
