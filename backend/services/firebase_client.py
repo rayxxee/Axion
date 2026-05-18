@@ -15,8 +15,12 @@ if not firebase_admin._apps:
     cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "firebase-credentials.json")
     if not os.path.isabs(cred_path):
         cred_path = ROOT_DIR / cred_path
-    cred = credentials.Certificate(cred_path)
-    firebase_admin.initialize_app(cred)
+    try:
+        cred = credentials.Certificate(cred_path)
+        firebase_admin.initialize_app(cred)
+    except Exception:
+        # Fallback for Cloud Run (uses Application Default Credentials)
+        firebase_admin.initialize_app()
 
 db = firestore.client()
 

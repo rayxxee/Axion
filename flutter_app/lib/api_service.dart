@@ -6,7 +6,7 @@ import 'dart:typed_data';
 class ApiService {
   // Use 10.0.2.2 for Android emulator to connect to localhost:8000
   // Or put your local IP if testing on physical device
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl = 'https://axion-backend-133838314315.us-central1.run.app';
 
   static Future<Map<String, dynamic>> analyzeTextOrUrl(String inputType, String content) async {
     final response = await http.post(
