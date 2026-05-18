@@ -9,8 +9,7 @@
         "firestore_read",
         "firestore_write",
         "firestore_batch_write",
-        "firestore_listen",
-        "firestore_delete"
+        "firestore_listen"
       ]
     }
   ]

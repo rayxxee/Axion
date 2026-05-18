@@ -23,7 +23,7 @@ export default function ActionList({ actions = [] }) {
                     </span>
                   )}
                 </div>
-                <span className="text-xs font-medium text-[var(--color-success)]">PKR {(action.savings_pkr / 1000).toFixed(0)}K saved</span>
+                <p className="text-xs text-[var(--color-text-secondary)] mt-1 line-clamp-2">{action.expected_outcome || action.rationale}</p>
               </div>
             </div>
           </motion.div>

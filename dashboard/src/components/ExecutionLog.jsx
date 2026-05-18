@@ -1,7 +1,15 @@
 import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
 
-const agentIcons = { news_parser: '📰', impact_analyzer: '📊', action_generator: '⚡', executor: '🚀', output_composer: '📋' };
+const agentIcons = {
+  AnalystAgent: '📰',
+  ImpactAgent: '📊',
+  StrategyAgent: '⚡',
+  'ExecutorAgent:PricingUpdater': '🏷️',
+  'ExecutorAgent:NotifDrafter': '📨',
+  'ExecutorAgent:WorkflowTrigger': '🔔',
+  ComposerAgent: '📋',
+};
 
 export default function ExecutionLog({ entries = [] }) {
   return (

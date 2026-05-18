@@ -8,7 +8,7 @@ echo ===================================
 
 echo.
 echo Starting Backend (port 8000)...
-start cmd /k "cd backend && python -m uvicorn main:app --reload --port 8000"
+start cmd /k "cd backend && ..\.venv\Scripts\activate && python -m uvicorn main:app --reload --port 8000"
 
 echo Starting Dashboard (port 5173)...
 start cmd /k "cd dashboard && npm run dev"

@@ -1,18 +1,34 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Hackathon mode: open read/write for demo
-    match /pricing_records/{doc} {
-      allow read: if true;
-      allow write: if true;
+    // Hackathon demo mode: open read/write for all pipeline collections.
+    // In production, these would be locked to authenticated service accounts.
+    match /pending_analysis/{doc} {
+      allow read, write: if true;
     }
-    match /analysis_jobs/{doc} {
-      allow read: if true;
-      allow write: if true;
+    match /agent_outputs/{doc} {
+      allow read, write: if true;
     }
-    match /demo_products/{doc} {
-      allow read: if true;
-      allow write: if true;
+    match /pricing_table/{doc} {
+      allow read, write: if true;
+    }
+    match /simulation_state/{doc} {
+      allow read, write: if true;
+    }
+    match /notification_drafts/{doc} {
+      allow read, write: if true;
+    }
+    match /workflow_alerts/{doc} {
+      allow read, write: if true;
+    }
+    match /execution_log/{doc} {
+      allow read, write: if true;
+    }
+    match /final_report/{doc} {
+      allow read, write: if true;
+    }
+    match /pipeline_status/{doc} {
+      allow read, write: if true;
     }
   }
 }

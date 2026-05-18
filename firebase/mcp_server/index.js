@@ -80,12 +80,33 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 
 // SSE transport for Antigravity
 const app = express();
+
+// Store active transports keyed by sessionId
+const transports = {};
+
 app.get('/sse', async (req, res) => {
   const transport = new SSEServerTransport('/messages', res);
+  transports[transport.sessionId] = transport;
+
+  res.on('close', () => {
+    delete transports[transport.sessionId];
+    console.log(`SSE session ${transport.sessionId} closed`);
+  });
+
   await server.connect(transport);
+  console.log(`SSE session ${transport.sessionId} connected`);
 });
+
 app.post('/messages', express.json(), async (req, res) => {
-  res.json({ status: 'ok' });
+  const sessionId = req.query.sessionId;
+  const transport = transports[sessionId];
+
+  if (!transport) {
+    res.status(400).json({ error: 'No active SSE session for this sessionId' });
+    return;
+  }
+
+  await transport.handlePostMessage(req, res);
 });
 
 const PORT = process.env.MCP_PORT || 3001;
