@@ -33,5 +33,9 @@ mobile/.packages
 .DS_Store
 Thumbs.db
 
+# Traces (uploaded separately)
+antigravity_traces.zip
+agent_trace.json
+
 # Graphify (existing)
 graphify-out/
