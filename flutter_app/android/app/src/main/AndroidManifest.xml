@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for API calls to the backend -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Required for file_picker PDF upload -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <application
         android:label="axion_app"
         android:name="${applicationName}"

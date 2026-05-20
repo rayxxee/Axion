@@ -15,6 +15,18 @@ class _InputScreenState extends State<InputScreen> {
   bool _isLoading = false;
   String _activeTab = 'text'; // 'text', 'url', 'pdf'
   PlatformFile? _selectedPdf;
+  bool? _isConnected; // null = checking, true = connected, false = failed
+
+  @override
+  void initState() {
+    super.initState();
+    _checkConnection();
+  }
+
+  Future<void> _checkConnection() async {
+    final ok = await ApiService.testConnection();
+    if (mounted) setState(() => _isConnected = ok);
+  }
 
   final List<Map<String, String>> _demos = [
     {
@@ -93,6 +105,36 @@ class _InputScreenState extends State<InputScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Connection status banner
+            if (_isConnected == false)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.cloud_off, color: Colors.red, size: 20),
+                    const SizedBox(width: 8),
+                    const Expanded(child: Text('Cannot reach backend. Check internet.', style: TextStyle(color: Colors.red, fontSize: 13))),
+                    IconButton(
+                      icon: const Icon(Icons.refresh, size: 18),
+                      onPressed: () {
+                        setState(() => _isConnected = null);
+                        _checkConnection();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            if (_isConnected == null)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: LinearProgressIndicator(),
+              ),
             SegmentedButton<String>(
               segments: const [
                 ButtonSegment(value: 'text', icon: Icon(Icons.text_snippet), label: Text('Text')),
