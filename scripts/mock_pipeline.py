@@ -20,71 +20,68 @@ def run():
     print(f"Running pipeline for {run_id}...")
     db.collection('pipeline_status').document('current').set({"status": "processing"})
     
-    # Agent 1
-    time.sleep(2)
-    db.collection('agent_outputs').document('agent1_result').set({
-        "status": "complete",
-        "data": {
-            "headline": "SBP raises policy rate by 200 bps",
-            "topic": "monetary_policy",
-            "economic_signals": [{"signal": "Policy rate increased", "magnitude": "200bps", "direction": "up"}],
-            "source_credibility_score": 0.9
-        },
-        "completed_at": datetime.utcnow().isoformat()
-    })
-    print("Agent 1 complete.")
-    
-    # Agent 2
-    time.sleep(2)
-    db.collection('agent_outputs').document('agent2_result').set({
-        "status": "complete",
-        "data": {
-            "delivery_cost_increase": "15%",
-            "severity_rating": "High"
-        },
-        "completed_at": datetime.utcnow().isoformat()
-    })
-    print("Agent 2 complete.")
-    
-    # Agent 3
-    time.sleep(2)
-    db.collection('agent_outputs').document('agent3_result').set({
-        "status": "complete",
-        "data": {
-            "actions": [
-                {"rank": 1, "title": "Adjust Pricing", "effort": "Low", "impact": "High"}
-            ]
-        },
-        "completed_at": datetime.utcnow().isoformat()
-    })
-    print("Agent 3 complete.")
-    
-    # Agent 4
-    time.sleep(2)
-    db.collection('agent_outputs').document('agent4_result').set({
-        "status": "complete",
-        "data": {
-            "simulations_run": 3
-        },
-        "completed_at": datetime.utcnow().isoformat()
-    })
-    print("Agent 4 complete.")
-    
-    # Final Report
-    time.sleep(2)
+    # Final Report with CORRECT structure expected by ResultsPage.jsx
     db.collection('final_report').document('current').set({
         "run_id": run_id,
-        "summary": "SBP rate hike increases borrowing costs. Recommended to adjust logistics pricing by 15% to maintain margins.",
-        "before_after": [
-            {"product": "Standard Delivery - Lahore", "before": 243, "after": 280, "margin": "18%"}
-        ],
-        "notifications": {
-            "email": "Dear customer, due to the recent SBP rate hike...",
-            "sms": "Muaziz sarif, delivery charges have been updated..."
+        "insight_card": {
+            "headline": "SBP raises policy rate by 200 bps to 19.5%",
+            "topic_badge": "Monetary Policy",
+            "severity": "High",
+            "credibility_score": 0.95,
+            "one_line_insight": "Significant borrowing cost increase affecting working capital."
         },
-        "alerts": [
-            {"level": "P1", "message": "Update pricing table in production"}
-        ]
+        "impact_metrics": {
+            "cost_change_pkr": 45000,
+            "margin_change_pct": -2.5,
+            "affected_orders_count": 200,
+            "risk_level": "High"
+        },
+        "actions": [
+            {
+                "rank": 1,
+                "title": "Adjust Logistics Pricing",
+                "simulate": True,
+                "rationale": "Maintain 18% margin baseline",
+                "steps": ["Recalculate prices", "Notify customers"],
+                "effort": "Low",
+                "impact": "High",
+                "timeframe": "Immediate"
+            },
+            {
+                "rank": 2,
+                "title": "Optimize Routes",
+                "simulate": False,
+                "rationale": "Reduce fuel usage to offset costs",
+                "steps": ["Audit routes", "Deploy optimizer"],
+                "effort": "Medium",
+                "impact": "Medium",
+                "timeframe": "1-2 Weeks"
+            }
+        ],
+        "before_state": [
+            {"name": "Standard Delivery - Lahore", "total_price_pkr": 243},
+            {"name": "Express Delivery - Karachi", "total_price_pkr": 337},
+            {"name": "Bulk Freight - Islamabad", "total_price_pkr": 1147}
+        ],
+        "after_state": [
+            {"name": "Standard Delivery - Lahore", "total_price_pkr": 288},
+            {"name": "Express Delivery - Karachi", "total_price_pkr": 395},
+            {"name": "Bulk Freight - Islamabad", "total_price_pkr": 1250}
+        ],
+        "notification_draft": {
+            "email": {"subject": "Pricing Update Notification", "body": "Dear customer,\nDue to the recent 200 bps SBP rate hike, we are updating our delivery charges to maintain service quality."},
+            "sms": {"body": "Delivery charges update ho gaye hain. Naye rates app par dekhein."},
+            "internal_alert": "Urgent: Apply new pricing table across all regions immediately."
+        },
+        "execution_log": [
+            {"agent": "AnalystAgent", "action": "Extracted facts", "timestamp": "12:00:01"},
+            {"agent": "ImpactAgent", "action": "Calculated PKR impact", "timestamp": "12:00:02"},
+            {"agent": "StrategyAgent", "action": "Generated actions", "timestamp": "12:00:05"},
+            {"agent": "ExecutorAgent:PricingUpdater", "action": "Updated prices", "timestamp": "12:00:08"},
+            {"agent": "ExecutorAgent:NotifDrafter", "action": "Drafted emails", "timestamp": "12:00:09"},
+            {"agent": "ComposerAgent", "action": "Assembled report", "timestamp": "12:00:10"}
+        ],
+        "state_change_summary": "Simulated pricing update applied across 5 products to maintain 18% margins."
     })
     
     # Pipeline complete
