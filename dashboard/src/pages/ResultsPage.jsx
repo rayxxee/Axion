@@ -100,6 +100,15 @@ export default function ResultsPage() {
     timeframe: a.timeframe,
   }));
 
+  let agentName = '';
+  let actionText = pipelineStatus;
+
+  if (pipelineStatus && pipelineStatus.includes(':')) {
+    const parts = pipelineStatus.split(':');
+    agentName = parts[0].trim();
+    actionText = parts.slice(1).join(':').trim();
+  }
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold">Analysis Results</h1>
@@ -108,10 +117,25 @@ export default function ResultsPage() {
 
       {/* Status Banner */}
       {pipelineStatus !== 'complete' && !error && !report && (
-        <div className="text-center py-12 text-[var(--color-text-secondary)]">
-          <div className="w-8 h-8 border-2 border-[var(--color-accent)]/30 border-t-[var(--color-accent)] rounded-full animate-spin mx-auto mb-4" />
-          <p>Pipeline running... Antigravity agents are processing.</p>
-          <p className="text-xs mt-2 opacity-60">Status: {pipelineStatus}</p>
+        <div className="text-center py-12 flex flex-col items-center justify-center">
+          <div className="relative mb-6">
+            <div className="w-16 h-16 border-4 border-[var(--color-accent)]/20 border-t-[var(--color-accent)] rounded-full animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-8 h-8 bg-[var(--color-accent)]/30 rounded-full animate-pulse" />
+            </div>
+          </div>
+          
+          <h2 className="text-2xl font-bold text-[var(--color-text-primary)] mb-4">
+            {agentName ? `Agent Active: ${agentName}` : 'Pipeline Running...'}
+          </h2>
+          
+          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-full px-6 py-3 shadow-md inline-flex items-center min-w-[300px] border-[var(--color-accent)]/30">
+            <span className="relative flex h-3 w-3 mr-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-accent)] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--color-accent)]"></span>
+            </span>
+            <p className="text-sm font-medium animate-pulse text-[var(--color-text-secondary)]">{actionText || 'Initializing Antigravity pipeline...'}</p>
+          </div>
         </div>
       )}
 
