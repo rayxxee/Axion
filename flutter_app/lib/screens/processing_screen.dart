@@ -44,14 +44,21 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
         if (status == 'complete') {
           timer.cancel();
           _fetchReport();
+        } else if (status == 'error') {
+          timer.cancel();
+          if (mounted) {
+            setState(() => _status = 'error');
+            final errorMsg = statusData['error_message'] ?? 'Pipeline failed';
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg)));
+          }
         }
       } catch (e) {
         // Just retry on error
         debugPrint('Poll error: $e');
       }
       
-      // Timeout after 2 mins
-      if (_secondsElapsed > 120) {
+      // Timeout after 4 mins
+      if (_secondsElapsed > 240) {
         timer.cancel();
         if (mounted) {
           setState(() => _status = 'error');
@@ -80,26 +87,87 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String agentName = '';
+    String actionText = _status;
+
+    if (_status.contains(':')) {
+      final parts = _status.split(':');
+      agentName = parts[0].trim();
+      actionText = parts.sublist(1).join(':').trim();
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Processing')),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 24),
-            const Text(
-              'Antigravity Agents are working...',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Status: $_status',
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
-            Text('${_secondsElapsed}s elapsed'),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 80,
+                    height: 80,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 6,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                    ),
+                  ),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+              Text(
+                agentName.isNotEmpty ? 'Agent Active: $agentName' : 'Pipeline Running...',
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 12,
+                      height: 12,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        actionText.isNotEmpty ? actionText : 'Initializing Antigravity pipeline...',
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                '${_secondsElapsed}s elapsed',
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ],
+          ),
         ),
       ),
     );
