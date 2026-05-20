@@ -5,10 +5,10 @@
 > Axion is a 5-agent AI pipeline that ingests unstructured news articles (text, URLs), analyzes their direct financial impact on the Pakistani business market (specifically logistics and pricing), generates ranked strategic actions, and simulates execution with real-time before/after state visualizations — **fully orchestrated natively in Python using Vertex AI**.
 
 ## 📋 Mandatory Submissions
-1. **Mobile App Link**: [Insert Mobile App Drive Link Here]
-2. **Github Repository**: [Insert Github Repository Link Here]
-3. **Demo Video**: [Insert Demo Video Link Here] (3-5 minutes showcasing workflow, agency, and innovation)
-4. **Antigravity Usage Video**: [Insert Antigravity Video Link Here] (2-3 minutes screen recording)
+1. **Mobile App Link**: [https://drive.google.com/drive/folders/1wd5-UgIryPoIc9MMW8VSDIdr7peU5QOv?usp=sharing](https://drive.google.com/drive/folders/1wd5-UgIryPoIc9MMW8VSDIdr7peU5QOv?usp=sharing)
+2. **Github Repository**: [https://github.com/rayxxee/axion](https://github.com/rayxxee/axion)
+3. **Demo Video**: [https://drive.google.com/drive/folders/1wLW-Y0i0-_S_Zdy0HzoPlTn49tqgitYE?usp=drive_link](https://drive.google.com/drive/folders/1wLW-Y0i0-_S_Zdy0HzoPlTn49tqgitYE?usp=drive_link) (3-5 minutes showcasing workflow, agency, and innovation)
+4. **Antigravity Usage Video**: [https://drive.google.com/drive/folders/1qnjxTLCxve6TYXiOzJEpMjNsX984mpq-?usp=drive_link](https://drive.google.com/drive/folders/1qnjxTLCxve6TYXiOzJEpMjNsX984mpq-?usp=drive_link) (2-3 minutes screen recording)
 5. **README / Documentation**: (See below for architecture, APIs, agents, and integration details)
 6. **Antigravity Trace / Logs**: [Download antigravity_traces.zip](antigravity_traces.zip)
 
