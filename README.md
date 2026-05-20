@@ -4,8 +4,15 @@
 
 > Axion is a 5-agent AI pipeline that ingests unstructured news articles (text, URLs), analyzes their direct financial impact on the Pakistani business market (specifically logistics and pricing), generates ranked strategic actions, and simulates execution with real-time before/after state visualizations — **fully orchestrated natively in Python using Vertex AI**.
 
-## 🎥 Demo Video
-*(Link to 3–5 minute demo video)*
+## 📋 Mandatory Submissions
+1. **Mobile App Link**: [Insert Mobile App Drive Link Here]
+2. **Github Repository**: [Insert Github Repository Link Here]
+3. **Demo Video**: [Insert Demo Video Link Here] (3-5 minutes showcasing workflow, agency, and innovation)
+4. **Antigravity Usage Video**: [Insert Antigravity Video Link Here] (2-3 minutes screen recording)
+5. **README / Documentation**: (See below for architecture, APIs, agents, and integration details)
+6. **Antigravity Trace / Logs**: [Download antigravity_traces.zip](antigravity_traces.zip)
+
+*(Note: Optional submissions have been omitted as requested)*
 
 ---
 
