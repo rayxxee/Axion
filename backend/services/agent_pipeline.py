@@ -2,23 +2,83 @@ import os
 import json
 import time
 from datetime import datetime
-import google.generativeai as genai
+import requests
 from .firebase_client import db
 
 from dotenv import load_dotenv
 load_dotenv()
 
-# Configure Gemini
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+import google.oauth2.service_account
+from google.auth.transport.requests import Request
+from pathlib import Path
 
-def get_gemini_response(prompt: str) -> dict:
-    """Helper to call Gemini and parse JSON response."""
-    # Using the standard model for all tasks to simplify deployment
-    model = genai.GenerativeModel('gemini-flash-latest')
-    response = model.generate_content(
-        prompt + "\n\nCRITICAL INSTRUCTION: Your output MUST be ONLY valid JSON. Do not wrap in ```json fences. Return raw JSON string only."
-    )
-    text = response.text.strip()
+_VERTEX_CREDENTIALS = None
+
+def _get_vertex_token():
+    global _VERTEX_CREDENTIALS
+    if _VERTEX_CREDENTIALS is None:
+        cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "firebase-credentials.json")
+        root_dir = Path(__file__).resolve().parent.parent.parent
+        if not os.path.isabs(cred_path):
+            cred_path = root_dir / cred_path
+        scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+        try:
+            _VERTEX_CREDENTIALS = google.oauth2.service_account.Credentials.from_service_account_file(cred_path, scopes=scopes)
+        except Exception:
+            import google.auth
+            _VERTEX_CREDENTIALS, _ = google.auth.default(scopes=scopes)
+    
+    if not _VERTEX_CREDENTIALS.valid:
+        _VERTEX_CREDENTIALS.refresh(Request())
+    return _VERTEX_CREDENTIALS.token
+
+def get_gemini_response(prompt: str, max_retries=4, timeout=60) -> dict:
+    """Helper to call Gemini and parse JSON response via Vertex AI REST API."""
+    project_id = os.getenv("FIREBASE_PROJECT_ID", "axion-397cf")
+    region = "us-central1"
+    url = f"https://{region}-aiplatform.googleapis.com/v1/projects/{project_id}/locations/{region}/publishers/google/models/gemini-2.5-flash:generateContent"
+    
+    payload = {
+        "contents": [{"role": "user", "parts": [{"text": prompt + "\n\nCRITICAL INSTRUCTION: Your output MUST be ONLY valid JSON. Do not wrap in ```json fences. Return raw JSON string only."}]}],
+        "generationConfig": {"temperature": 0.2}
+    }
+    
+    for attempt in range(max_retries):
+        try:
+            token = _get_vertex_token()
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            }
+            response = requests.post(url, json=payload, headers=headers, timeout=timeout)
+        except requests.exceptions.Timeout:
+            if attempt < max_retries - 1:
+                print(f"API timeout. Retrying in {2 ** attempt * 2}s...")
+                time.sleep(2 ** attempt * 2)
+                continue
+            raise Exception("Gemini API Error: Request timed out after all retries")
+        except requests.exceptions.RequestException as e:
+            if attempt < max_retries - 1:
+                print(f"API network error ({e}). Retrying in {2 ** attempt * 2}s...")
+                time.sleep(2 ** attempt * 2)
+                continue
+            raise Exception(f"Gemini API Network Error: {e}")
+            
+        if response.status_code == 200:
+            break
+        elif response.status_code in [429, 503] and attempt < max_retries - 1:
+            print(f"API busy ({response.status_code}). Retrying in {2 ** attempt * 2}s...")
+            time.sleep(2 ** attempt * 2)
+            continue
+        else:
+            raise Exception(f"Gemini API Error {response.status_code}: {response.text}")
+        
+    data = response.json()
+    try:
+        text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+    except (KeyError, IndexError):
+        raise Exception(f"Invalid API response format: {json.dumps(data)}")
+        
     if text.startswith("```json"):
         text = text[7:]
     if text.endswith("```"):
@@ -196,7 +256,7 @@ def run_pipeline(run_id: str, article_text: str):
           }}
         }}
         """
-        agent4_result = get_gemini_response(prompt_4)
+        agent4_result = get_gemini_response(prompt_4, timeout=180)
         after_state = agent4_result.get("after_state", [])
         for product in after_state:
             prod_id = product.get("id")
