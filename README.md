@@ -10,9 +10,6 @@
 3. **Demo Video**: [https://drive.google.com/drive/folders/1wLW-Y0i0-_S_Zdy0HzoPlTn49tqgitYE?usp=drive_link](https://drive.google.com/drive/folders/1wLW-Y0i0-_S_Zdy0HzoPlTn49tqgitYE?usp=drive_link) (3-5 minutes showcasing workflow, agency, and innovation)
 4. **Antigravity Usage Video**: [https://drive.google.com/drive/folders/1qnjxTLCxve6TYXiOzJEpMjNsX984mpq-?usp=drive_link](https://drive.google.com/drive/folders/1qnjxTLCxve6TYXiOzJEpMjNsX984mpq-?usp=drive_link) (2-3 minutes screen recording)
 5. **README / Documentation**: (See below for architecture, APIs, agents, and integration details)
-6. **Antigravity Trace / Logs**: [Download antigravity_traces.zip](antigravity_traces.zip)
-
-*(Note: Optional submissions have been omitted as requested)*
 
 ---
 
